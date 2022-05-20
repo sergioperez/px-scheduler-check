@@ -42,11 +42,20 @@ func main() {
     }
 
     for email, podList := range invalidPodByMail {
+	fmt.Println("E-mail:", email)
+	podByNS := make(map[string][]string, len(podList))
+
 	for _, pod := range podList {
-	    fmt.Println("E-mail:", email)
-	    fmt.Println("Pod: ", pod.Name)
-	    fmt.Println("Namespace: ", pod.Namespace)
+	    podByNS[pod.Namespace] = append(podByNS[pod.Namespace], pod.Name)
 	}
+	for ns, pods := range podByNS {
+	    fmt.Println("Namespace:", ns)
+	    fmt.Println("Pods:")
+	    for _, pod := range pods {
+		fmt.Printf("\t%v\n", pod)
+	    }
+	}
+	fmt.Println("###")
     }
 }
 
@@ -107,7 +116,7 @@ func getInvalidPods(clientset *kubernetes.Clientset) []corev1.Pod {
 }
 
 func getAllPods(clientset *kubernetes.Clientset) *corev1.PodList {
-    pods, err := clientset.CoreV1().Pods("sergioperezbis-dev").List(context.TODO(), metav1.ListOptions{})
+    pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
     if err != nil {
 	panic(err.Error())
     }
